@@ -1,0 +1,362 @@
+---
+title: "R Notebook"
+output:
+  pdf_document: default
+  html_document:
+    self_contained: no
+---
+
+## Global Trade Analysis
+There has been a lot of media attention recently on the potential "trade war" brewing between the US and China. The goal of this tutorial is to apply data science to better understand how the global trade dynamics have changed over time, and what our current state is. By the end of this tutorial, you will be able to tell your friends why the amount of global exports crashed in 2014, and have a good idea about what the export level will be in the future. 
+
+## 1. Getting Started
+### 1.1 Installing R
+But before we can do all that cool stuff, we have to set up our environment first. For our tutorial today we will be using R. R is a free, open source, environment for data analysis. It is available as a free binary download for Mac, Linux and Windows. To install R in your computer go to https://cran.r-project.org/index.html and download and install the appropriate binary file.
+
+### 1.2 Installing RStudio 
+In order to do our programming, we will be working with RStudio, a very powerful application that simplifies working with R. To install go to https://www.rstudio.com/products/rstudio/download/ and download the appropriate version of Rstudio.
+
+### 1.3 Downloading the Dataset
+The dataset that we are going to be working with in this analysis is Global Commodity Trade Statistics for 5,000+ commodities across most countries around the world over the last 30 years. The dataset was pulled from Kaggle.com, and orginially sourced from the United Nations Statistics Divison [dataset](https://comtrade.un.org/). From the UN comtrade website, "The United Nations Commodity Trade Statistics Database (UN Comtrade) stores more than 1 billion trade data records from 1962. Over 140 reporter countries provide the United Nations Statistics Division with their annual international trade statistics detailed by commodities and partner countries. These data are subsequently transformed into the United Nations Statistics Division standard format with consistent coding and valuation using the UN/OECD CoprA internal processing system." And with that, we're ready to jump into the analysis! 
+
+## 2. Understanding the Data
+The first part of any good data science project is understanding the data that you're working with. This can be done both visually and through descriptive statitics. Because our dataset is so large and with such high variance between observations, we will mainly be focusing on visualizations. 
+
+### 2.1 Load Data
+Before loading the data, we first need to load in a couple R packages. Packages are the fundamental units of reproducible R code. They include reusable R functions, the documentation that describes how to use them, and sample data. Now we can get started on loading in the data. A description for all the attributes can be found at [COMTRADE UN](https://comtrade.un.org/db/mr/rfGlossaryList.aspx)
+
+```{r Import Data}
+library(tidyverse)
+library(randomForest)
+trade_tab <- read_csv("commodity_data.csv") ## huge dataset, takes a couple minute to load
+colnames(trade_tab) ## attributes 
+head(trade_tab) ## observations 
+```
+### 2.2 Descriptive statistics 
+Just taking a quick peek, we can see that we have data about a lot of different countries, about a lot of different commodities that they either import/export, across a lot of time periods. If that sounds vague don't worry, lets dig a little deeper and see how we can quantify some of these numbers. 
+```{r}
+min(trade_tab$year) ## What's the earliest available year?
+max(trade_tab$year) ## Lastest year?
+length(unique(trade_tab$country_or_area)) ## how many countries are in this dataset?
+length(unique(trade_tab$commodity)) ## How many different types of commodities are being traded? (hint: a lot)
+## what is the average unique types of goods that a country exports?
+trade_tab %>%
+  filter(year %in% c(1990,2015)) %>%
+  group_by(year,country_or_area) %>%
+  summarise(num_unique = n_distinct(category)) %>%
+  ungroup() %>%
+  group_by(year) %>%
+  summarise(average_count = mean(num_unique))
+```
+5031 different [categorical variables](https://en.wikipedia.org/wiki/Categorical_variable) is 5031 too many categorical variables to deal with. Flippant hummor aside, lets see how we can break that down. Luckily, the dataset came with a "category" attribute as well, and there are only 10 of those (HW: how'd I get 10). The problem is that each of the categories are extremely long, so that is going to be a headache for data visualization down the road. Lets deal with that problem now with some **pattern matching**. Pattern matching is essentially pulling out parts of strings that you want, and R makes the entire process extremely easy with the [stringr package](https://cran.r-project.org/web/packages/stringr/vignettes/stringr.html)
+```{r}
+regex = "^[:digit:]*"
+string = trade_tab$category
+trade_tab <- trade_tab %>%
+  mutate(category_code = str_match(string,regex))
+category_legend <- trade_tab %>%
+  select(category_code,category) %>%
+  group_by(category_code) %>%
+  slice(1)
+category_legend 
+```
+We will be using this category_code attribute in lieu of the orginial category attribute. The table above should be used as a reference for more detailed descriptions of each category throughout the tutorial. 
+
+### 2.3 Missing Data
+One of the biggest headaches with data science is managing missing values. Missing values are coded as NA in R, which makes it easier for detection.
+```{r}
+colSums(is.na(trade_tab)) ## NA observations
+```
+### 2.4 Developed vs. Emerging Market live animal trade 
+Before working on some of the more convoluted analysis, lets write a simple script to get a better understanding of the different popular commands, and the general syntax. 
+```{r}
+# First lets find all the different categories that involve chicken
+test <- trade_tab %>%
+  filter(category_code=='01') %>%
+  filter(flow=='Export') %>%
+  filter(country_or_area %in% 
+           c('USA','Germany','United Kingdom','China','Brazil','India','Russia')) %>%
+  mutate(developed = ifelse(country_or_area %in% 
+                              c('USA','Germany','United Kingdom'),1,0)) %>%
+  group_by(year,developed) %>%
+  summarise(price = (sum(as.numeric(trade_usd),na.rm = TRUE)/1000)/
+              (sum(as.numeric(weight_kg),na.rm = TRUE)/1000))
+test
+test %>%
+  ggplot(aes(x=year,y=price,color=developed)) +
+  geom_point() +
+  scale_y_continuous(labels = scales::dollar) + 
+  labs(title="Price/lb for livestock in Emerging and Developed Markets",
+         x = "Year",
+         y = "Price/lb")
+
+  
+```
+We can see from the print out and the graph that the price/lb for livestock has converged over time. In the early 90s, the price/lb for livestock being exported out of emerging markets was significantly higher than the price from developed markets. These prices have converged over time and now they are very similar. This was a good preliminary anaylsis for beginning to understand what the process looks like, now we can work on some exploratory analysis.
+
+## Exploratory Analysis 
+Exploratory analysis is the process of getting a better idea of what your data looks like (aka exploring your data). One of the key parts of this tutorial is the dollar amounts for trade from each country, so lets build a graph to better understand it. 
+```{r}
+colnames(trade_tab) ## attributes 
+head(trade_tab) ## observations 
+colSums(is.na(trade_tab)) ## NA observations
+min(trade_tab$year) ## The earliest year available is 1988
+trade_tab %>%
+  group_by(year,flow) %>%
+  summarize(sum_trade = sum(trade_usd/1000000, na.rm=TRUE)) %>% 
+  ggplot(aes(x=year, y=sum_trade, color=flow)) +
+    geom_point() +
+    scale_y_continuous(labels = scales::dollar) +
+    geom_line() + 
+    labs(title="Figure 1. Trade over time",
+         x = "Year",
+         y = "Total global trade (millions USD)")
+```
+**Trade over time**
+In the graph above, we observe the growth in global trade. We can see that that there are four different types of trade recorded in the dataset. Exports and imports have seen strong growth over the past 2 decades, but over the last several years seen a significant decline. Re-exports and re-imports have stayed relatively flat over the past 2 decades. One interesting takeaway is that **global exports does not match global imports**. Theoretically, the two should be equal, but the deficit is actually growing steeper. Taking exports to extraterrestrials out of the equation, the problem seems to boil down to [overinvoicing imports and underinvoicing exports to lower firms' tax bill](https://www.economist.com/node/21538100). Later, we will look into what caused the steep drop in trade between 2014 and 2015. For now, lets see try to understand the data a little better and look into **what exactly is getting traded between countries**, and how that has evolved over time. 
+```{r categories}
+
+cut_year <- cut(trade_tab$year,4)
+
+trade_items <- trade_tab %>%
+  mutate(cut_year=cut_year) %>%
+  filter(flow=='Export') %>%
+  filter(!(category %in% 
+             c('99_commodities_not_specified_according_to_kind','all_commodities'))) %>%
+  ## Find total exports for each category code for each 5 year period
+  group_by(cut_year,category_code) %>%
+  ## Total will be in millions USD
+  summarize(category_sum = sum(trade_usd/1000000, na.rm=TRUE)) %>% 
+  ## Select top 5 and bottom 5 global exports
+  arrange(cut_year,desc(category_sum)) %>%
+  slice(c(1:5,(n()-4):n()))
+
+## Reorder so that bar graph is in descending order 
+trade_items$category_code <- reorder(trade_items$category_code, 
+                                     -trade_items$category_sum)
+
+## Bar graph 
+trade_items %>%
+  ggplot(aes(x=category_code, y=category_sum,fill=category_code)) +
+    facet_grid(. ~ cut_year,scales="free_x") +
+    geom_col() +
+    scale_y_continuous(labels = scales::dollar) + 
+    theme(axis.text.x=element_blank(),
+       axis.ticks.x=element_blank()) +
+    labs(title="Figure 2. Top 5 Most and Least Exported Items",
+         x = "Product Category",
+         y = "Total exports (millions USD)")
+  
+```
+In the bar graph above, we can see the top 5 most/least exported products during each 7 year time period between 1988 and 2016. Across all 4 periods, the most exported product category was "mineral_fuels_oils_distillation_products_etc", followed closely by pharmaceutical products and then "vehicles other than railways". In order to better understand these product categories, we can compare our findings with a list of [the world's most exported products](http://www.worldstopexports.com/worlds-top-export-products/). Our results seem to align with the online database. Now that we have a better understanding of the product categories driving global trade, lets dive into what caused the crash in 2014.
+
+## Deep Dive into Exports 
+My approach to solving this problem is to measure the year over year change in amount of exports for each product category both nominally and as a percent change. Using both analyses will allow us to identify which products had the most influence on exports, as well as which products a significant crash in export. But first, we have to wrangle the data into the correct format. 
+
+```{r Tidying}
+## Total amount of global exports annually, in millions
+total_trade <- trade_tab %>%
+  filter(flow == 'Export') %>%
+  group_by(year,category_code) %>%
+  summarise(total_trade = sum(trade_usd/1000000,na.rm = TRUE))
+
+## Convert df to a wife_df by spread out each year as an individual attribute
+trade_wide_df <- total_trade %>%
+  select(category_code, year, total_trade) %>%
+  tidyr::spread(year, total_trade)
+
+## Drop the first column
+trade_matrix_1 <- trade_wide_df %>%
+  select(-category_code) %>%
+  as.matrix() %>%
+  .[,-1]
+
+## Drop the last column
+trade_matrix_2 <- trade_wide_df %>%
+  select(-category_code) %>% 
+  as.matrix() %>%
+  .[,-ncol(.)]
+
+## Perform some matrix operations with matrices 1 and 2 to find the yoy % change in exports 
+trade_percent_change <- (trade_matrix_1 - trade_matrix_2)/trade_matrix_2 %>%
+  magrittr::set_colnames(NULL) %>%
+  as_data_frame() 
+
+## Perform some matrix operations with matrices 1 and 2 to find the yoy nominal in exports 
+trade_nom_change <- (trade_matrix_1 - trade_matrix_2) %>%
+  magrittr::set_colnames(NULL) %>%
+  as_data_frame() 
+
+## Unknown error when doing mutate with previous pipes
+trade_percent_change <- trade_percent_change %>%
+  mutate(category_code = trade_wide_df$category_code)
+trade_nom_change <- trade_nom_change %>%
+  mutate(category_code = trade_wide_df$category_code)
+
+## Fix column names 
+names(trade_percent_change)[1:28] <- 1989:2016
+names(trade_nom_change)[1:28] <- 1989:2016
+```
+Now that the data is in the correct format, we can plot the data and analyze the results for both nominal and percent changes. 
+```{r Nominal Change}
+## Analyze nominal changes in exports 
+trade_nom_change_2 <- trade_nom_change %>% 
+  gather(year,nominal_change,-category_code)
+trade_nom_change_3 <- trade_nom_change_2 %>%
+  transform(nominal_change = as.numeric(nominal_change)) %>%
+  transform(year = as.numeric(year))
+
+trade_nom_change_4 <- trade_nom_change_3 %>%
+  ## only look at 4 most recent years
+  filter(year >= 2012) %>%
+  filter(!(category_code %in% c('','99'))) %>%
+  ## Select top 5 and bottom 5 percent movers
+  arrange(year,desc(nominal_change)) %>%
+  group_by(year) %>%
+  slice((n()-4):n())
+
+## Reorder so that bar graph is in descending order 
+trade_nom_change_4$category_code <- reorder(trade_nom_change_4$category_code,
+                                            -trade_nom_change_4$nominal_change)
+
+## Bar graph 
+trade_nom_change_4 %>%
+  ggplot(aes(x=year, y=nominal_change,fill=category_code)) +
+    geom_col() +
+    geom_text(aes(label=category_code),colour="white", check_overlap = TRUE,
+              position = position_stack(vjust = 0.5)) +
+    scale_y_continuous(labels = scales::dollar) + 
+    labs(title="Figure 3. Top 5 Products that brought down exports",
+         x = "Product Category",
+         y = "Year over year decline in exports (millions USD)") +
+     guides(fill=guide_legend(title="Category Code"))
+
+```
+In Figure 3 above, we can see a breakdown of which products brought down exports the most over the past 5 years. One interesting observation is that there is no one product that consistently contributes to a decline in exports. The bottom 5 exports seems to shift every year, but produts in the 70s range seem to appear semi-regualrly. ![Products in the 70s categories](product_categories.png). It seems that all of the products that fall in the 70s category are raw commodities. Doing some outside research, it seems that this general downtrend over the past couple of years was due to a [global drop in the commodities market](http://www.worldbank.org/en/news/press-release/2015/01/22/commodity-prices-expected-continue-declining-2015-wb-report). Finally, looking at 2016, we can see that it was a clear outlier in terms of perfromance and the categories that dragged down exports. 30 and 38 are pharmaceutical drugs and "miscellaneous chemical products". I found it very interesting that global exports of pharmaceuticals jumped down $75 billion over the course of one year, when it wasn't even in the bottom 5 for the past 5 years. For anyone interested in digging deeper, [here is some additional analysis on the pharma market](https://www.trade.gov/topmarkets/pdf/Pharmaceuticals_Top_Markets_Reports.pdf). Lets see how these numbers compare the the relative change analysis.
+```{r Percent Change}
+## Analyze percent changes in exports 
+trade_percent_change_2 <- trade_percent_change %>% 
+  gather(year,percent_change,-category_code)
+trade_percent_change_3 <- trade_percent_change_2 %>%
+  transform(percent_change = as.numeric(percent_change)) %>%
+  transform(year = as.numeric(year))
+
+trade_percent_change_4 <- trade_percent_change_3 %>%
+  ## only look at 4 most recent years
+  filter(year >= 2012) %>%
+  filter(!(category_code %in% c('','99'))) %>%
+  ## Select top 5 and bottom 5 percent movers
+  arrange(year,desc(percent_change)) %>%
+  group_by(year) %>%
+  slice((n()-4):n())
+
+## Reorder so that bar graph is in descending order 
+trade_percent_change_4$category_code <- reorder(trade_percent_change_4$category_code, 
+                                     -trade_percent_change_4$percent_change)
+
+## Bar graph 
+trade_percent_change_4 %>%
+  ggplot(aes(x=year, y=percent_change,fill=category_code)) +
+    geom_col() +
+    geom_text(aes(label=category_code),colour="white", check_overlap = TRUE,
+              position = position_stack(vjust = 0.5)) +
+    scale_y_continuous(labels = scales::percent) + 
+    labs(title="Figure 4. Top 5 products with the worst growth",
+         x = "Product Category",
+         y = "Change in exports year over year (%)") +
+     guides(fill=guide_legend(title="Category Code"))
+
+```
+In line with the nominal analysis, we can see that products in the 60s/70s seemed to have the most negative yearly growth rate. Similar to the nominal analysis, the products that saw the steepest growth declines in 2016 were very interesting as well. 43 and 93 represent guns and furs accordingly. Both of these items are actively protested against, so it is interesting to see that effect take place in global trade data. 
+
+## Linear Regression
+Now that we understand how global exports has trended over time and seen which categories caused it to move both up and down, lets see if we can predict what the exports are going to be for any given country in the next year, on average. In order to do this, we are going to fit a linear regression. We start with the data from the last section that has the changes in the exports. 
+```{r}
+lag1 = function (x) c(NA, x[1:(length(x)-1)])
+
+trade_linear <- trade_nom_change_3 %>%
+  group_by(year) %>%
+  summarise(average_change = mean(nominal_change,na.rm = TRUE))
+
+## Add a lagged variable to our dataset 
+trade_linear_2 <- trade_linear %>%
+  mutate(lagged = lag1(trade_linear$average_change))
+
+## fit our linear model 
+model <- lm(average_change ~ lagged + year, data=trade_linear_2)
+summary(model)
+```
+## Hypothesis Testing
+Now that we have our linear model, we have to conduct hypothesis testing to determine whether or not the model is significant. Because we have a multiple linear regression, we will be conducting a F-test to determine whether or not the model has more predictive ability than just having a model with $\beta_0$. Our hypothesis is:  
+$$
+\begin{aligned}
+  &H_o: \beta_1 = \beta_2 = 0 \\
+  &H_a: \beta_1 \vee \beta_2 \neq 0
+\end{aligned}
+$$
+Going back to the regression output, we see that it has a F-statistic of 1.403, which gives a p-value of .2654. With an $\alpha$ of .05, we would fail to reject the null hypothesis. From our F-test we can conclude that this linear model does not have any significant predictive ability predicting the change in exports for a country for next year. In order to improve the linear model, we could have fitted 139 dummy variables to account for variation from each country. However, lets see if we can build a better model without fitting 100+ variables.
+
+## Random Forest Application
+Our approach is going to be using a Random Forest machine learning algorithm to predict whether or not the amount of goods exported is goign to go up or down in the next year. The algorithm works by constructing multiple decision trees and then using the mean prediction of the indiivudal trees. In this first step, we will just be setting up the data. For the analysis I chose to only use data up to 2010 and then try to predict the amount of exports in 2011 because the data after that point is very volatile. 
+
+```{r setup data}
+## Original dataset 
+trade_nom_change <- (trade_matrix_1 - trade_matrix_2) %>%
+  magrittr::set_colnames(NULL) %>%
+  as_data_frame() 
+trade_nom_change <- trade_nom_change %>%
+  mutate(category_code = trade_wide_df$category_code)
+
+## Add Direction attribute that describes whether or not the exports for that item went up or down in 2011
+outcome_df <- trade_wide_df %>%
+  mutate(diff = `2012` - `2011`) %>%
+  mutate(Direction = ifelse(diff>0, "up", "down")) %>%
+  select(category_code, Direction)
+outcome_df
+
+## Combine the two dataframes 
+final_df <- trade_nom_change %>%
+  inner_join(outcome_df, by="category_code") %>%
+  mutate(Direction=factor(Direction, levels=c("down", "up"))) %>%
+  select(-V28,-V27,-V26,-V25,-V24) %>%
+  filter(!(category_code %in% c('','99')))
+final_df
+```
+Once the data is in the right format, we have to divide the data up into two groups. 1 group will be for training (80% of the samples), and the other group will be for testing (20% of the samples). It is important to divide your dataset into testing and training data in order to avoid overfitting. 
+```{r split data}
+set.seed(1234)
+test_random_forest_df <- final_df %>%
+  group_by(Direction) %>%
+  sample_frac(.2) %>%
+  ungroup()
+
+train_random_forest_df <- final_df %>%
+  anti_join(test_random_forest_df, by="category_code")
+```
+At this step, we can finally plug our training data into the random forest algorithm and prduce an end model! 
+```{r learn}
+rf <- randomForest(Direction~., data=train_random_forest_df %>% 
+                     select(-category_code),na.action = na.exclude)
+rf
+```
+From the model printout, we can see that it still had an error rate of close to 45%. When we run our model with the test data below, we also see a similar result. Even though we were not able to build a model with a very low error rate, I believe that there are a lot of small tweeks that could be made to the model for improvements. If this is something that is of interest, I would recommend reading more about the [caret package](https://machinelearningmastery.com/tune-machine-learning-algorithms-in-r/). 
+```{r Test}
+test_predictions <- predict(rf, newdata=test_random_forest_df %>% select(-category_code))
+table(pred=test_predictions, observed=test_random_forest_df$Direction)
+```
+
+## Conclusion
+At the beginning of this tutorial, we began with a foreign dataset that had more than 8 million rows. Taking baby steps at the beginning, we first built a scatter plot that described the state of global trade over time. Looking at the plot we noticed an abnormally large dip in exports after 2014, so we did further analysis to figure out why that may have been. As we progressed through the tutorial and the analysis became more convoluted, we performed intermitten sanity checks by comparing our findings with news articles and market reports. 
+
+In the second half of the tutorial, we began to move away from descriptive to predictive analysis. We first began with a simple linear regression, but then after conducting a F-test we concluded that the model was not statistically significant. In a last attempt to build a working model, we built a random forest model to predict whether or not exports were going to rise in 2012. Thank you for working along with me through this tutorial, and if there are any lingering questions, [this is a great resource on using R for datascience](http://www.hcbravo.org/IntroDataSci/bookdown-notes/).
+
+### Research questions for future analysis
+
+* Countries that export and import the same product, look at re-imports and re-exports
+* What is the most traded commodity? 
+* Which countries are the most dependent on one export/import item? 
+* What caused spike in re-exports 
+* Countries that have exports > imports vs. countries with imports > exports, over time 
+* Use cluster analysis on amount of exports to see if there are any groupings. Graph each 
+* Price/pound for live animals over time. Weight/animal over time
+* Most valuable trade item?, compare countries 
