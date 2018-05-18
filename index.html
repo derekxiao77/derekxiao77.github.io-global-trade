@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<!-- saved from url=(0085)file://localhost/Users/achang96/Documents/derekxiao77.github.io/Trade_Analysis_2.html -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+
+
+<meta name="generator" content="pandoc">
+
+
+
+
+<title>R Notebook</title>
+
+<script src="./index_files/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="./index_files/bootstrap.min.css" rel="stylesheet">
+<script src="./index_files/bootstrap.min.js"></script>
+<script src="./index_files/html5shiv.min.js"></script>
+<script src="./index_files/respond.min.js"></script>
+<script src="./index_files/tabsets.js"></script>
+<link href="./index_files/default.css" rel="stylesheet">
+<script src="./index_files/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+<script type="text/javascript" src="./index_files/MathJax.js"></script><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 5px 0px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; -khtml-border-radius: 5px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 1px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: .7em}
+.MathJax_MenuRadioCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuLabel {padding: 1px 2em 3px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #DDDDDD; margin: 4px 3px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: #606872; color: white}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style><style type="text/css">.MathJax_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax .merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MathJax .MJX-monospace {font-family: monospace}
+.MathJax .MJX-sans-serif {font-family: sans-serif}
+#MathJax_Tooltip {background-color: InfoBackground; color: InfoText; border: 1px solid black; box-shadow: 2px 2px 5px #AAAAAA; -webkit-box-shadow: 2px 2px 5px #AAAAAA; -moz-box-shadow: 2px 2px 5px #AAAAAA; -khtml-box-shadow: 2px 2px 5px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true'); padding: 3px 4px; z-index: 401; position: absolute; left: 0; top: 0; width: auto; height: auto; display: none}
+.MathJax {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax:focus, body :focus .MathJax {display: inline-table}
+.MathJax.MathJax_FullWidth {text-align: center; display: table-cell!important; width: 10000em!important}
+.MathJax img, .MathJax nobr, .MathJax a {border: 0; padding: 0; margin: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; vertical-align: 0; line-height: normal; text-decoration: none}
+img.MathJax_strut {border: 0!important; padding: 0!important; margin: 0!important; vertical-align: 0!important}
+.MathJax span {display: inline; position: static; border: 0; padding: 0; margin: 0; vertical-align: 0; line-height: normal; text-decoration: none}
+.MathJax nobr {white-space: nowrap!important}
+.MathJax img {display: inline!important; float: none!important}
+.MathJax * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.MathJax_Processing {visibility: hidden; position: fixed; width: 0; height: 0; overflow: hidden}
+.MathJax_Processed {display: none!important}
+.MathJax_ExBox {display: block!important; overflow: hidden; width: 1px; height: 60ex; min-height: 0; max-height: none}
+.MathJax .MathJax_EmBox {display: block!important; overflow: hidden; width: 1px; height: 60em; min-height: 0; max-height: none}
+.MathJax_LineBox {display: table!important}
+.MathJax_LineBox span {display: table-cell!important; width: 10000em!important; min-width: 0; max-width: none; padding: 0; border: 0; margin: 0}
+.MathJax .MathJax_HitBox {cursor: text; background: white; opacity: 0; filter: alpha(opacity=0)}
+.MathJax .MathJax_HitBox * {filter: none; opacity: 1; background: transparent}
+#MathJax_Tooltip * {filter: none; opacity: 1; background: transparent}
+@font-face {font-family: MathJax_Blank; src: url('about:blank')}
+.MathJax .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style></head>
+
+<body><div style="visibility: hidden; overflow: hidden; position: absolute; top: 0px; height: 1px; width: auto; padding: 0px; border: 0px; margin: 0px; text-align: left; text-indent: 0px; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal;"><div id="MathJax_Hidden"></div></div><div id="MathJax_Message" style="display: none;"></div>
+
+<style type="text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">R Notebook</h1>
+
+</div>
+
+
+<div id="global-trade-analysis" class="section level2">
+<h2>Global Trade Analysis</h2>
+<p>There has been a lot of media attention recently on the potential “trade war” brewing between the US and China. The goal of this tutorial is to apply data science to better understand how the global trade dynamics have changed over time, and what our current state is. By the end of this tutorial, you will be able to tell your friends why the amount of global exports crashed in 2014, and have a good idea about what the export level will be in the future.</p>
+</div>
+<div id="getting-started" class="section level2">
+<h2>1. Getting Started</h2>
+<div id="installing-r" class="section level3">
+<h3>1.1 Installing R</h3>
+<p>But before we can do all that cool stuff, we have to set up our environment first. For our tutorial today we will be using R. R is a free, open source, environment for data analysis. It is available as a free binary download for Mac, Linux and Windows. To install R in your computer go to <a href="https://cran.r-project.org/index.html" class="uri">https://cran.r-project.org/index.html</a> and download and install the appropriate binary file.</p>
+</div>
+<div id="installing-rstudio" class="section level3">
+<h3>1.2 Installing RStudio</h3>
+<p>In order to do our programming, we will be working with RStudio, a very powerful application that simplifies working with R. To install go to <a href="https://www.rstudio.com/products/rstudio/download/" class="uri">https://www.rstudio.com/products/rstudio/download/</a> and download the appropriate version of Rstudio.</p>
+</div>
+<div id="downloading-the-dataset" class="section level3">
+<h3>1.3 Downloading the Dataset</h3>
+<p>The dataset that we are going to be working with in this analysis is Global Commodity Trade Statistics for 5,000+ commodities across most countries around the world over the last 30 years. The dataset was pulled from Kaggle.com, and orginially sourced from the United Nations Statistics Divison <a href="https://comtrade.un.org/">dataset</a>. From the UN comtrade website, “The United Nations Commodity Trade Statistics Database (UN Comtrade) stores more than 1 billion trade data records from 1962. Over 140 reporter countries provide the United Nations Statistics Division with their annual international trade statistics detailed by commodities and partner countries. These data are subsequently transformed into the United Nations Statistics Division standard format with consistent coding and valuation using the UN/OECD CoprA internal processing system.” And with that, we’re ready to jump into the analysis!</p>
+</div>
+</div>
+<div id="understanding-the-data" class="section level2">
+<h2>2. Understanding the Data</h2>
+<p>The first part of any good data science project is understanding the data that you’re working with. This can be done both visually and through descriptive statitics. Because our dataset is so large and with such high variance between observations, we will mainly be focusing on visualizations.</p>
+<div id="load-data" class="section level3">
+<h3>2.1 Load Data</h3>
+<p>Before loading the data, we first need to load in a couple R packages. Packages are the fundamental units of reproducible R code. They include reusable R functions, the documentation that describes how to use them, and sample data. Now we can get started on loading in the data. A description for all the attributes can be found at <a href="https://comtrade.un.org/db/mr/rfGlossaryList.aspx">COMTRADE UN</a></p>
+<pre class="r"><code class="hljs"><span class="hljs-keyword">library</span>(tidyverse)</code></pre>
+<pre><code class="hljs">## ── Attaching packages ─────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code class="hljs">## ✔ ggplot2 2.2.1     ✔ purrr   0.2.4
+## ✔ tibble  1.4.2     ✔ dplyr   0.7.4
+## ✔ tidyr   0.8.0     ✔ stringr 1.2.0
+## ✔ readr   1.1.1     ✔ forcats 0.2.0</code></pre>
+<pre><code class="hljs">## ── Conflicts ────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code class="hljs"><span class="hljs-keyword">library</span>(randomForest)</code></pre>
+<pre><code class="hljs">## randomForest 4.6-14</code></pre>
+<pre><code class="hljs">## Type rfNews() to see new features/changes/bug fixes.</code></pre>
+<pre><code class="hljs">## 
+## Attaching package: 'randomForest'</code></pre>
+<pre><code class="hljs">## The following object is masked from 'package:dplyr':
+## 
+##     combine</code></pre>
+<pre><code class="hljs">## The following object is masked from 'package:ggplot2':
+## 
+##     margin</code></pre>
+<pre class="r"><code class="hljs">trade_tab &lt;- read_csv(<span class="hljs-string">"commodity_data.csv"</span>) <span class="hljs-comment">## huge dataset, takes a couple minute to load</span></code></pre>
+<pre><code class="hljs">## Parsed with column specification:
+## cols(
+##   country_or_area = col_character(),
+##   year = col_integer(),
+##   comm_code = col_character(),
+##   commodity = col_character(),
+##   flow = col_character(),
+##   trade_usd = col_integer(),
+##   weight_kg = col_integer(),
+##   quantity_name = col_character(),
+##   quantity = col_integer(),
+##   category = col_character()
+## )</code></pre>
+<pre><code class="hljs">## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)</code></pre>
+<pre><code class="hljs">## Warning: 41394 parsing failures.
+## row # A tibble: 5 x 5 col     row col      expected   actual      file                 expected   &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;      &lt;chr&gt;       &lt;chr&gt;                actual 1  4107 quantity an integer 15513607967 'commodity_data.csv' file 2 13721 quantity an integer 2496187972  'commodity_data.csv' row 3 13747 quantity an integer 5755928743  'commodity_data.csv' col 4 13774 quantity an integer 11785578945 'commodity_data.csv' expected 5 13804 quantity an integer 6656167961  'commodity_data.csv'
+## ... ................. ... ............................................................ ........ ............................................................ ...... ............................................................ .... ............................................................ ... ............................................................ ... ............................................................ ........ ............................................................
+## See problems(...) for more details.</code></pre>
+<pre class="r"><code class="hljs">colnames(trade_tab) <span class="hljs-comment">## attributes </span></code></pre>
+<pre><code class="hljs">##  [1] "country_or_area" "year"            "comm_code"      
+##  [4] "commodity"       "flow"            "trade_usd"      
+##  [7] "weight_kg"       "quantity_name"   "quantity"       
+## [10] "category"</code></pre>
+<pre class="r"><code class="hljs">head(trade_tab) <span class="hljs-comment">## observations </span></code></pre>
+<pre><code class="hljs">## # A tibble: 6 x 10
+##   country_or_area  year comm_code commodity      flow  trade_usd weight_kg
+##   &lt;chr&gt;           &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;          &lt;chr&gt;     &lt;int&gt;     &lt;int&gt;
+## 1 Afghanistan      2016 010410    Sheep, live    Expo…      6088      2339
+## 2 Afghanistan      2016 010420    Goats, live    Expo…      3958       984
+## 3 Afghanistan      2008 010210    Bovine animal… Impo…   1026804       272
+## 4 Albania          2016 010290    Bovine animal… Impo…   2414533   1114023
+## 5 Albania          2016 010392    Swine, live e… Impo…  14265937   9484953
+## 6 Albania          2016 010511    Fowls, live d… Impo…   2671732    254652
+## # ... with 3 more variables: quantity_name &lt;chr&gt;, quantity &lt;int&gt;,
+## #   category &lt;chr&gt;</code></pre>
+</div>
+<div id="descriptive-statistics" class="section level3">
+<h3>2.2 Descriptive statistics</h3>
+<p>Just taking a quick peek, we can see that we have data about a lot of different countries, about a lot of different commodities that they either import/export, across a lot of time periods. If that sounds vague don’t worry, lets dig a little deeper and see how we can quantify some of these numbers.</p>
+<pre class="r"><code class="hljs">min(trade_tab$year) <span class="hljs-comment">## What's the earliest available year?</span></code></pre>
+<pre><code class="hljs">## [1] 1988</code></pre>
+<pre class="r"><code class="hljs">max(trade_tab$year) <span class="hljs-comment">## Lastest year?</span></code></pre>
+<pre><code class="hljs">## [1] 2016</code></pre>
+<pre class="r"><code class="hljs">length(unique(trade_tab$country_or_area)) <span class="hljs-comment">## how many countries are in this dataset?</span></code></pre>
+<pre><code class="hljs">## [1] 209</code></pre>
+<pre class="r"><code class="hljs">length(unique(trade_tab$commodity)) <span class="hljs-comment">## How many different types of commodities are being traded? (hint: a lot)</span></code></pre>
+<pre><code class="hljs">## [1] 5031</code></pre>
+<pre class="r"><code class="hljs"><span class="hljs-comment">## what is the average unique types of goods that a country exports?</span>
+trade_tab %&gt;%
+  filter(year %<span class="hljs-keyword">in</span>% c(<span class="hljs-number">1990</span>,<span class="hljs-number">2015</span>)) %&gt;%
+  group_by(year,country_or_area) %&gt;%
+  summarise(num_unique = n_distinct(category)) %&gt;%
+  ungroup() %&gt;%
+  group_by(year) %&gt;%
+  summarise(average_count = mean(num_unique))</code></pre>
+<pre><code class="hljs">## # A tibble: 2 x 2
+##    year average_count
+##   &lt;int&gt;         &lt;dbl&gt;
+## 1  1990          61.5
+## 2  2015          63.6</code></pre>
+<p>5031 different <a href="https://en.wikipedia.org/wiki/Categorical_variable">categorical variables</a> is 5031 too many categorical variables to deal with. Flippant hummor aside, lets see how we can break that down. Luckily, the dataset came with a “category” attribute as well, and there are only 10 of those (HW: how’d I get 10). The problem is that each of the categories are extremely long, so that is going to be a headache for data visualization down the road. Lets deal with that problem now with some <strong>pattern matching</strong>. Pattern matching is essentially pulling out parts of strings that you want, and R makes the entire process extremely easy with the <a href="https://cran.r-project.org/web/packages/stringr/vignettes/stringr.html">stringr package</a></p>
+<pre class="r"><code class="hljs">regex = <span class="hljs-string">"^[:digit:]*"</span>
+string = trade_tab$category
+trade_tab &lt;- trade_tab %&gt;%
+  mutate(category_code = str_match(string,regex))
+category_legend &lt;- trade_tab %&gt;%
+  select(category_code,category) %&gt;%
+  group_by(category_code) %&gt;%
+  slice(<span class="hljs-number">1</span>)
+category_legend </code></pre>
+<pre><code class="hljs">## # A tibble: 98 x 2
+## # Groups:   category_code [98]
+##    category_code category                                              
+##    &lt;chr&gt;         &lt;chr&gt;                                                 
+##  1 ""            all_commodities                                       
+##  2 01            01_live_animals                                       
+##  3 02            02_meat_and_edible_meat_offal                         
+##  4 03            03_fish_crustaceans_molluscs_aquatic_invertebrates_ne 
+##  5 04            04_dairy_products_eggs_honey_edible_animal_product_nes
+##  6 05            05_products_of_animal_origin_nes                      
+##  7 06            06_live_trees_plants_bulbs_roots_cut_flowers_etc      
+##  8 07            07_edible_vegetables_and_certain_roots_and_tubers     
+##  9 08            08_edible_fruit_nuts_peel_of_citrus_fruit_melons      
+## 10 09            09_coffee_tea_mate_and_spices                         
+## # ... with 88 more rows</code></pre>
+<p>We will be using this category_code attribute in lieu of the orginial category attribute. The table above should be used as a reference for more detailed descriptions of each category throughout the tutorial.</p>
+</div>
+<div id="missing-data" class="section level3">
+<h3>2.3 Missing Data</h3>
+<p>One of the biggest headaches with data science is managing missing values. Missing values are coded as NA in R, which makes it easier for detection.</p>
+<pre class="r"><code class="hljs">colSums(is.na(trade_tab)) <span class="hljs-comment">## NA observations</span></code></pre>
+<pre><code class="hljs">## country_or_area            year       comm_code       commodity 
+##               0               0               0               0 
+##            flow       trade_usd       weight_kg   quantity_name 
+##               0           15404          141058               0 
+##        quantity        category                 
+##          318264               0               0</code></pre>
+</div>
+<div id="developed-vs.emerging-market-live-animal-trade" class="section level3">
+<h3>2.4 Developed vs.&nbsp;Emerging Market live animal trade</h3>
+<p>Before working on some of the more convoluted analysis, lets write a simple script to get a better understanding of the different popular commands, and the general syntax.</p>
+<pre class="r"><code class="hljs"><span class="hljs-comment"># First lets find all the different categories that involve chicken</span>
+test &lt;- trade_tab %&gt;%
+  filter(category_code==<span class="hljs-string">'01'</span>) %&gt;%
+  filter(flow==<span class="hljs-string">'Export'</span>) %&gt;%
+  filter(country_or_area %<span class="hljs-keyword">in</span>% 
+           c(<span class="hljs-string">'USA'</span>,<span class="hljs-string">'Germany'</span>,<span class="hljs-string">'United Kingdom'</span>,<span class="hljs-string">'China'</span>,<span class="hljs-string">'Brazil'</span>,<span class="hljs-string">'India'</span>,<span class="hljs-string">'Russia'</span>)) %&gt;%
+  mutate(developed = ifelse(country_or_area %<span class="hljs-keyword">in</span>% 
+                              c(<span class="hljs-string">'USA'</span>,<span class="hljs-string">'Germany'</span>,<span class="hljs-string">'United Kingdom'</span>),<span class="hljs-number">1</span>,<span class="hljs-number">0</span>)) %&gt;%
+  group_by(year,developed) %&gt;%
+  summarise(price = (sum(as.numeric(trade_usd),na.rm = <span class="hljs-literal">TRUE</span>)/<span class="hljs-number">1000</span>)/
+              (sum(as.numeric(weight_kg),na.rm = <span class="hljs-literal">TRUE</span>)/<span class="hljs-number">1000</span>))
+test</code></pre>
+<pre><code class="hljs">## # A tibble: 55 x 3
+## # Groups:   year [?]
+##     year developed  price
+##    &lt;int&gt;     &lt;dbl&gt;  &lt;dbl&gt;
+##  1  1988      0    Inf   
+##  2  1989      0      6.26
+##  3  1990      0      6.55
+##  4  1991      0      9.20
+##  5  1991      1.00   3.15
+##  6  1992      0    182   
+##  7  1992      1.00   3.68
+##  8  1993      0    127   
+##  9  1993      1.00   3.97
+## 10  1994      0    429   
+## # ... with 45 more rows</code></pre>
+<pre class="r"><code class="hljs">test %&gt;%
+  ggplot(aes(x=year,y=price,color=developed)) +
+  geom_point() +
+  scale_y_continuous(labels = scales::dollar) + 
+  labs(title=<span class="hljs-string">"Price/lb for livestock in Emerging and Developed Markets"</span>,
+         x = <span class="hljs-string">"Year"</span>,
+         y = <span class="hljs-string">"Price/lb"</span>)</code></pre>
+<p><img src="./index_files/unnamed-chunk-4-1.png" width="672"> We can see from the print out and the graph that the price/lb for livestock has converged over time. In the early 90s, the price/lb for livestock being exported out of emerging markets was significantly higher than the price from developed markets. These prices have converged over time and now they are very similar. This was a good preliminary anaylsis for beginning to understand what the process looks like, now we can work on some exploratory analysis.</p>
+</div>
+</div>
+<div id="exploratory-analysis" class="section level2">
+<h2>Exploratory Analysis</h2>
+<p>Exploratory analysis is the process of getting a better idea of what your data looks like (aka exploring your data). One of the key parts of this tutorial is the dollar amounts for trade from each country, so lets build a graph to better understand it.</p>
+<pre class="r"><code class="hljs">colnames(trade_tab) <span class="hljs-comment">## attributes </span></code></pre>
+<pre><code class="hljs">##  [1] "country_or_area" "year"            "comm_code"      
+##  [4] "commodity"       "flow"            "trade_usd"      
+##  [7] "weight_kg"       "quantity_name"   "quantity"       
+## [10] "category"        "category_code"</code></pre>
+<pre class="r"><code class="hljs">head(trade_tab) <span class="hljs-comment">## observations </span></code></pre>
+<pre><code class="hljs">## # A tibble: 6 x 11
+##   country_or_area  year comm_code commodity      flow  trade_usd weight_kg
+##   &lt;chr&gt;           &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;          &lt;chr&gt;     &lt;int&gt;     &lt;int&gt;
+## 1 Afghanistan      2016 010410    Sheep, live    Expo…      6088      2339
+## 2 Afghanistan      2016 010420    Goats, live    Expo…      3958       984
+## 3 Afghanistan      2008 010210    Bovine animal… Impo…   1026804       272
+## 4 Albania          2016 010290    Bovine animal… Impo…   2414533   1114023
+## 5 Albania          2016 010392    Swine, live e… Impo…  14265937   9484953
+## 6 Albania          2016 010511    Fowls, live d… Impo…   2671732    254652
+## # ... with 4 more variables: quantity_name &lt;chr&gt;, quantity &lt;int&gt;,
+## #   category &lt;chr&gt;, category_code &lt;chr&gt;</code></pre>
+<pre class="r"><code class="hljs">colSums(is.na(trade_tab)) <span class="hljs-comment">## NA observations</span></code></pre>
+<pre><code class="hljs">## country_or_area            year       comm_code       commodity 
+##               0               0               0               0 
+##            flow       trade_usd       weight_kg   quantity_name 
+##               0           15404          141058               0 
+##        quantity        category                 
+##          318264               0               0</code></pre>
+<pre class="r"><code class="hljs">min(trade_tab$year) <span class="hljs-comment">## The earliest year available is 1988</span></code></pre>
+<pre><code class="hljs">## [1] 1988</code></pre>
+<pre class="r"><code class="hljs">trade_tab %&gt;%
+  group_by(year,flow) %&gt;%
+  summarize(sum_trade = sum(trade_usd/<span class="hljs-number">1000000</span>, na.rm=<span class="hljs-literal">TRUE</span>)) %&gt;% 
+  ggplot(aes(x=year, y=sum_trade, color=flow)) +
+    geom_point() +
+    scale_y_continuous(labels = scales::dollar) +
+    geom_line() + 
+    labs(title=<span class="hljs-string">"Figure 1. Trade over time"</span>,
+         x = <span class="hljs-string">"Year"</span>,
+         y = <span class="hljs-string">"Total global trade (millions USD)"</span>)</code></pre>
+<p><img src="./index_files/unnamed-chunk-5-1.png" width="672"> <strong>Trade over time</strong> In the graph above, we observe the growth in global trade. We can see that that there are four different types of trade recorded in the dataset. Exports and imports have seen strong growth over the past 2 decades, but over the last several years seen a significant decline. Re-exports and re-imports have stayed relatively flat over the past 2 decades. One interesting takeaway is that <strong>global exports does not match global imports</strong>. Theoretically, the two should be equal, but the deficit is actually growing steeper. Taking exports to extraterrestrials out of the equation, the problem seems to boil down to <a href="https://www.economist.com/node/21538100">overinvoicing imports and underinvoicing exports to lower firms’ tax bill</a>. Later, we will look into what caused the steep drop in trade between 2014 and 2015. For now, lets see try to understand the data a little better and look into <strong>what exactly is getting traded between countries</strong>, and how that has evolved over time.</p>
+<pre class="r"><code class="hljs">cut_year &lt;- cut(trade_tab$year,<span class="hljs-number">4</span>)
+
+trade_items &lt;- trade_tab %&gt;%
+  mutate(cut_year=cut_year) %&gt;%
+  filter(flow==<span class="hljs-string">'Export'</span>) %&gt;%
+  filter(!(category %<span class="hljs-keyword">in</span>% 
+             c(<span class="hljs-string">'99_commodities_not_specified_according_to_kind'</span>,<span class="hljs-string">'all_commodities'</span>))) %&gt;%
+  <span class="hljs-comment">## Find total exports for each category code for each 5 year period</span>
+  group_by(cut_year,category_code) %&gt;%
+  <span class="hljs-comment">## Total will be in millions USD</span>
+  summarize(category_sum = sum(trade_usd/<span class="hljs-number">1000000</span>, na.rm=<span class="hljs-literal">TRUE</span>)) %&gt;% 
+  <span class="hljs-comment">## Select top 5 and bottom 5 global exports</span>
+  arrange(cut_year,desc(category_sum)) %&gt;%
+  slice(c(<span class="hljs-number">1</span>:<span class="hljs-number">5</span>,(n()-<span class="hljs-number">4</span>):n()))
+
+<span class="hljs-comment">## Reorder so that bar graph is in descending order </span>
+trade_items$category_code &lt;- reorder(trade_items$category_code, 
+                                     -trade_items$category_sum)
+
+<span class="hljs-comment">## Bar graph </span>
+trade_items %&gt;%
+  ggplot(aes(x=category_code, y=category_sum,fill=category_code)) +
+    facet_grid(. ~ cut_year,scales=<span class="hljs-string">"free_x"</span>) +
+    geom_col() +
+    scale_y_continuous(labels = scales::dollar) + 
+    theme(axis.text.x=element_blank(),
+       axis.ticks.x=element_blank()) +
+    labs(title=<span class="hljs-string">"Figure 2. Top 5 Most and Least Exported Items"</span>,
+         x = <span class="hljs-string">"Product Category"</span>,
+         y = <span class="hljs-string">"Total exports (millions USD)"</span>)</code></pre>
+<p><img src="./index_files/categories-1.png" width="672"> In the bar graph above, we can see the top 5 most/least exported products during each 7 year time period between 1988 and 2016. Across all 4 periods, the most exported product category was “mineral_fuels_oils_distillation_products_etc”, followed closely by pharmaceutical products and then “vehicles other than railways”. In order to better understand these product categories, we can compare our findings with a list of <a href="http://www.worldstopexports.com/worlds-top-export-products/">the world’s most exported products</a>. Our results seem to align with the online database. Now that we have a better understanding of the product categories driving global trade, lets dive into what caused the crash in 2014.</p>
+</div>
+<div id="deep-dive-into-exports" class="section level2">
+<h2>Deep Dive into Exports</h2>
+<p>My approach to solving this problem is to measure the year over year change in amount of exports for each product category both nominally and as a percent change. Using both analyses will allow us to identify which products had the most influence on exports, as well as which products a significant crash in export. But first, we have to wrangle the data into the correct format.</p>
+<pre class="r"><code class="hljs"><span class="hljs-comment">## Total amount of global exports annually, in millions</span>
+total_trade &lt;- trade_tab %&gt;%
+  filter(flow == <span class="hljs-string">'Export'</span>) %&gt;%
+  group_by(year,category_code) %&gt;%
+  summarise(total_trade = sum(trade_usd/<span class="hljs-number">1000000</span>,na.rm = <span class="hljs-literal">TRUE</span>))
+
+<span class="hljs-comment">## Convert df to a wife_df by spread out each year as an individual attribute</span>
+trade_wide_df &lt;- total_trade %&gt;%
+  select(category_code, year, total_trade) %&gt;%
+  tidyr::spread(year, total_trade)
+
+<span class="hljs-comment">## Drop the first column</span>
+trade_matrix_1 &lt;- trade_wide_df %&gt;%
+  select(-category_code) %&gt;%
+  as.matrix() %&gt;%
+  .[,-<span class="hljs-number">1</span>]
+
+<span class="hljs-comment">## Drop the last column</span>
+trade_matrix_2 &lt;- trade_wide_df %&gt;%
+  select(-category_code) %&gt;% 
+  as.matrix() %&gt;%
+  .[,-ncol(.)]
+
+<span class="hljs-comment">## Perform some matrix operations with matrices 1 and 2 to find the yoy % change in exports </span>
+trade_percent_change &lt;- (trade_matrix_1 - trade_matrix_2)/trade_matrix_2 %&gt;%
+  magrittr::set_colnames(<span class="hljs-literal">NULL</span>) %&gt;%
+  as_data_frame() 
+
+<span class="hljs-comment">## Perform some matrix operations with matrices 1 and 2 to find the yoy nominal in exports </span>
+trade_nom_change &lt;- (trade_matrix_1 - trade_matrix_2) %&gt;%
+  magrittr::set_colnames(<span class="hljs-literal">NULL</span>) %&gt;%
+  as_data_frame() 
+
+<span class="hljs-comment">## Unknown error when doing mutate with previous pipes</span>
+trade_percent_change &lt;- trade_percent_change %&gt;%
+  mutate(category_code = trade_wide_df$category_code)
+trade_nom_change &lt;- trade_nom_change %&gt;%
+  mutate(category_code = trade_wide_df$category_code)
+
+<span class="hljs-comment">## Fix column names </span>
+names(trade_percent_change)[<span class="hljs-number">1</span>:<span class="hljs-number">28</span>] &lt;- <span class="hljs-number">1989</span>:<span class="hljs-number">2016</span>
+names(trade_nom_change)[<span class="hljs-number">1</span>:<span class="hljs-number">28</span>] &lt;- <span class="hljs-number">1989</span>:<span class="hljs-number">2016</span></code></pre>
+<p>Now that the data is in the correct format, we can plot the data and analyze the results for both nominal and percent changes.</p>
+<pre class="r"><code class="hljs"><span class="hljs-comment">## Analyze nominal changes in exports </span>
+trade_nom_change_2 &lt;- trade_nom_change %&gt;% 
+  gather(year,nominal_change,-category_code)
+trade_nom_change_3 &lt;- trade_nom_change_2 %&gt;%
+  transform(nominal_change = as.numeric(nominal_change)) %&gt;%
+  transform(year = as.numeric(year))
+
+trade_nom_change_4 &lt;- trade_nom_change_3 %&gt;%
+  <span class="hljs-comment">## only look at 4 most recent years</span>
+  filter(year &gt;= <span class="hljs-number">2012</span>) %&gt;%
+  filter(!(category_code %<span class="hljs-keyword">in</span>% c(<span class="hljs-string">''</span>,<span class="hljs-string">'99'</span>))) %&gt;%
+  <span class="hljs-comment">## Select top 5 and bottom 5 percent movers</span>
+  arrange(year,desc(nominal_change)) %&gt;%
+  group_by(year) %&gt;%
+  slice((n()-<span class="hljs-number">4</span>):n())
+
+<span class="hljs-comment">## Reorder so that bar graph is in descending order </span>
+trade_nom_change_4$category_code &lt;- reorder(trade_nom_change_4$category_code,
+                                            -trade_nom_change_4$nominal_change)
+
+<span class="hljs-comment">## Bar graph </span>
+trade_nom_change_4 %&gt;%
+  ggplot(aes(x=year, y=nominal_change,fill=category_code)) +
+    geom_col() +
+    geom_text(aes(label=category_code),colour=<span class="hljs-string">"white"</span>, check_overlap = <span class="hljs-literal">TRUE</span>,
+              position = position_stack(vjust = <span class="hljs-number">0.5</span>)) +
+    scale_y_continuous(labels = scales::dollar) + 
+    labs(title=<span class="hljs-string">"Figure 3. Top 5 Products that brought down exports"</span>,
+         x = <span class="hljs-string">"Product Category"</span>,
+         y = <span class="hljs-string">"Year over year decline in exports (millions USD)"</span>) +
+     guides(fill=guide_legend(title=<span class="hljs-string">"Category Code"</span>))</code></pre>
+<p><img src="./index_files/Nominal Change-1.png" width="672"> In Figure 3 above, we can see a breakdown of which products brought down exports the most over the past 5 years. One interesting observation is that there is no one product that consistently contributes to a decline in exports. The bottom 5 exports seems to shift every year, but produts in the 70s range seem to appear semi-regualrly. <img src="file://localhost/Users/achang96/Documents/derekxiao77.github.io/product_categories.png" alt="Products in the 70s categories">. It seems that all of the products that fall in the 70s category are raw commodities. Doing some outside research, it seems that this general downtrend over the past couple of years was due to a <a href="http://www.worldbank.org/en/news/press-release/2015/01/22/commodity-prices-expected-continue-declining-2015-wb-report">global drop in the commodities market</a>. Finally, looking at 2016, we can see that it was a clear outlier in terms of perfromance and the categories that dragged down exports. 30 and 38 are pharmaceutical drugs and “miscellaneous chemical products”. I found it very interesting that global exports of pharmaceuticals jumped down $75 billion over the course of one year, when it wasn’t even in the bottom 5 for the past 5 years. For anyone interested in digging deeper, <a href="https://www.trade.gov/topmarkets/pdf/Pharmaceuticals_Top_Markets_Reports.pdf">here is some additional analysis on the pharma market</a>. Lets see how these numbers compare the the relative change analysis.</p>
+<pre class="r"><code class="hljs"><span class="hljs-comment">## Analyze percent changes in exports </span>
+trade_percent_change_2 &lt;- trade_percent_change %&gt;% 
+  gather(year,percent_change,-category_code)
+trade_percent_change_3 &lt;- trade_percent_change_2 %&gt;%
+  transform(percent_change = as.numeric(percent_change)) %&gt;%
+  transform(year = as.numeric(year))
+
+trade_percent_change_4 &lt;- trade_percent_change_3 %&gt;%
+  <span class="hljs-comment">## only look at 4 most recent years</span>
+  filter(year &gt;= <span class="hljs-number">2012</span>) %&gt;%
+  filter(!(category_code %<span class="hljs-keyword">in</span>% c(<span class="hljs-string">''</span>,<span class="hljs-string">'99'</span>))) %&gt;%
+  <span class="hljs-comment">## Select top 5 and bottom 5 percent movers</span>
+  arrange(year,desc(percent_change)) %&gt;%
+  group_by(year) %&gt;%
+  slice((n()-<span class="hljs-number">4</span>):n())
+
+<span class="hljs-comment">## Reorder so that bar graph is in descending order </span>
+trade_percent_change_4$category_code &lt;- reorder(trade_percent_change_4$category_code, 
+                                     -trade_percent_change_4$percent_change)
+
+<span class="hljs-comment">## Bar graph </span>
+trade_percent_change_4 %&gt;%
+  ggplot(aes(x=year, y=percent_change,fill=category_code)) +
+    geom_col() +
+    geom_text(aes(label=category_code),colour=<span class="hljs-string">"white"</span>, check_overlap = <span class="hljs-literal">TRUE</span>,
+              position = position_stack(vjust = <span class="hljs-number">0.5</span>)) +
+    scale_y_continuous(labels = scales::percent) + 
+    labs(title=<span class="hljs-string">"Figure 4. Top 5 products with the worst growth"</span>,
+         x = <span class="hljs-string">"Product Category"</span>,
+         y = <span class="hljs-string">"Change in exports year over year (%)"</span>) +
+     guides(fill=guide_legend(title=<span class="hljs-string">"Category Code"</span>))</code></pre>
+<p><img src="./index_files/Percent Change-1.png" width="672"> In line with the nominal analysis, we can see that products in the 60s/70s seemed to have the most negative yearly growth rate. Similar to the nominal analysis, the products that saw the steepest growth declines in 2016 were very interesting as well. 43 and 93 represent guns and furs accordingly. Both of these items are actively protested against, so it is interesting to see that effect take place in global trade data.</p>
+</div>
+<div id="linear-regression" class="section level2">
+<h2>Linear Regression</h2>
+<p>Now that we understand how global exports has trended over time and seen which categories caused it to move both up and down, lets see if we can predict what the exports are going to be for any given country in the next year, on average. In order to do this, we are going to fit a linear regression. We start with the data from the last section that has the changes in the exports.</p>
+<pre class="r"><code class="hljs">lag1 = <span class="hljs-keyword">function</span> (x) c(<span class="hljs-literal">NA</span>, x[<span class="hljs-number">1</span>:(length(x)-<span class="hljs-number">1</span>)])
+
+trade_linear &lt;- trade_nom_change_3 %&gt;%
+  group_by(year) %&gt;%
+  summarise(average_change = mean(nominal_change,na.rm = <span class="hljs-literal">TRUE</span>))
+
+<span class="hljs-comment">## Add a lagged variable to our dataset </span>
+trade_linear_2 &lt;- trade_linear %&gt;%
+  mutate(lagged = lag1(trade_linear$average_change))
+
+<span class="hljs-comment">## fit our linear model </span>
+model &lt;- lm(average_change ~ lagged + year, data=trade_linear_2)
+summary(model)</code></pre>
+<pre><code class="hljs">## 
+## Call:
+## lm(formula = average_change ~ lagged + year, data = trade_linear_2)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -4656.4 -1056.0    57.3  1399.5  3953.9 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept)  1.348e+05  1.039e+05   1.298    0.207
+## lagged       2.227e-01  2.421e-01   0.920    0.367
+## year        -6.701e+01  5.183e+01  -1.293    0.208
+## 
+## Residual standard error: 2086 on 24 degrees of freedom
+##   (1 observation deleted due to missingness)
+## Multiple R-squared:  0.1047, Adjusted R-squared:  0.03005 
+## F-statistic: 1.403 on 2 and 24 DF,  p-value: 0.2654</code></pre>
+</div>
+<div id="hypothesis-testing" class="section level2">
+<h2>Hypothesis Testing</h2>
+<p>Now that we have our linear model, we have to conduct hypothesis testing to determine whether or not the model is significant. Because we have a multiple linear regression, we will be conducting a F-test to determine whether or not the model has more predictive ability than just having a model with <span class="math inline"><span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-1-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msub&gt;&lt;mi&gt;&amp;#x03B2;&lt;/mi&gt;&lt;mn&gt;0&lt;/mn&gt;&lt;/msub&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-1" style="width: 1.193em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.955em; height: 0px; font-size: 120%;"><span style="position: absolute; clip: rect(1.372em, 1000.96em, 2.562em, -999.997em); top: -2.199em; left: 0em;"><span class="mrow" id="MathJax-Span-2"><span class="msubsup" id="MathJax-Span-3"><span style="display: inline-block; position: relative; width: 0.955em; height: 0px;"><span style="position: absolute; clip: rect(3.158em, 1000.54em, 4.348em, -999.997em); top: -3.985em; left: 0em;"><span class="mi" id="MathJax-Span-4" style="font-family: STIXGeneral-Italic;">β<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.003em;"></span></span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="position: absolute; top: -3.807em; left: 0.539em;"><span class="mn" id="MathJax-Span-5" style="font-size: 70.7%; font-family: STIXGeneral-Regular;">0</span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 2.205em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.282em; border-left: 0px solid; width: 0px; height: 1.218em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>β</mi><mn>0</mn></msub></math></span></span><script type="math/tex" id="MathJax-Element-1">\beta_0</script></span>. Our hypothesis is:<br>
+<span class="math display"><span class="MathJax_Preview" style="color: inherit; display: none;"></span><div class="MathJax_Display" style="text-align: center;"><span class="MathJax" id="MathJax-Element-2-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;&gt;&lt;mtable columnalign=&quot;right left right left right left right left right left right left&quot; rowspacing=&quot;3pt&quot; columnspacing=&quot;0em 2em 0em 2em 0em 2em 0em 2em 0em 2em 0em&quot; displaystyle=&quot;true&quot;&gt;&lt;mtr&gt;&lt;mtd /&gt;&lt;mtd&gt;&lt;msub&gt;&lt;mi&gt;H&lt;/mi&gt;&lt;mi&gt;o&lt;/mi&gt;&lt;/msub&gt;&lt;mo&gt;:&lt;/mo&gt;&lt;msub&gt;&lt;mi&gt;&amp;#x03B2;&lt;/mi&gt;&lt;mn&gt;1&lt;/mn&gt;&lt;/msub&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;msub&gt;&lt;mi&gt;&amp;#x03B2;&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msub&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mn&gt;0&lt;/mn&gt;&lt;/mtd&gt;&lt;/mtr&gt;&lt;mtr&gt;&lt;mtd /&gt;&lt;mtd&gt;&lt;msub&gt;&lt;mi&gt;H&lt;/mi&gt;&lt;mi&gt;a&lt;/mi&gt;&lt;/msub&gt;&lt;mo&gt;:&lt;/mo&gt;&lt;msub&gt;&lt;mi&gt;&amp;#x03B2;&lt;/mi&gt;&lt;mn&gt;1&lt;/mn&gt;&lt;/msub&gt;&lt;mo&gt;&amp;#x2228;&lt;/mo&gt;&lt;msub&gt;&lt;mi&gt;&amp;#x03B2;&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msub&gt;&lt;mo&gt;&amp;#x2260;&lt;/mo&gt;&lt;mn&gt;0&lt;/mn&gt;&lt;/mtd&gt;&lt;/mtr&gt;&lt;/mtable&gt;&lt;/math&gt;" role="presentation" style="text-align: center; position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-6" style="width: 8.813em; display: inline-block;"><span style="display: inline-block; position: relative; width: 7.324em; height: 0px; font-size: 120%;"><span style="position: absolute; clip: rect(0.598em, 1007.15em, 3.336em, -999.997em); top: -2.199em; left: 0em;"><span class="mrow" id="MathJax-Span-7"><span class="mtable" id="MathJax-Span-8" style="padding-right: 0.182em; padding-left: 0.182em;"><span style="display: inline-block; position: relative; width: 6.967em; height: 0px;"><span style="position: absolute; clip: rect(3.217em, 1000em, 4.884em, -999.997em); top: -3.985em; left: 0em;"><span style="display: inline-block; position: relative; width: 0em; height: 0px;"><span style="position: absolute; clip: rect(3.812em, 1000em, 4.17em, -999.997em); top: -4.58em; right: 0em;"><span class="mtd" id="MathJax-Span-9"><span class="mrow" id="MathJax-Span-10"></span></span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="position: absolute; clip: rect(3.812em, 1000em, 4.17em, -999.997em); top: -3.271em; right: 0em;"><span class="mtd" id="MathJax-Span-26"><span class="mrow" id="MathJax-Span-27"></span></span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span></span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="position: absolute; clip: rect(2.503em, 1006.97em, 5.122em, -999.997em); top: -3.985em; left: 0em;"><span style="display: inline-block; position: relative; width: 6.967em; height: 0px;"><span style="position: absolute; clip: rect(3.158em, 1006.97em, 4.348em, -999.997em); top: -4.58em; left: 0em;"><span class="mtd" id="MathJax-Span-11"><span class="mrow" id="MathJax-Span-12"><span class="msubsup" id="MathJax-Span-13"><span style="display: inline-block; position: relative; width: 1.134em; height: 0px;"><span style="position: absolute; clip: rect(3.158em, 1000.78em, 4.17em, -999.997em); top: -3.985em; left: 0em;"><span class="mi" id="MathJax-Span-14" style="font-family: STIXGeneral-Italic;">H<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.063em;"></span></span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="position: absolute; top: -3.807em; left: 0.717em;"><span class="mi" id="MathJax-Span-15" style="font-size: 70.7%; font-family: STIXGeneral-Italic;">o</span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span></span></span><span class="mo" id="MathJax-Span-16" style="font-family: STIXGeneral-Regular; padding-left: 0.301em;">:</span><span class="msubsup" id="MathJax-Span-17" style="padding-left: 0.301em;"><span style="display: inline-block; position: relative; width: 0.955em; height: 0px;"><span style="position: absolute; clip: rect(3.158em, 1000.54em, 4.348em, -999.997em); top: -3.985em; left: 0em;"><span class="mi" id="MathJax-Span-18" style="font-family: STIXGeneral-Italic;">β<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.003em;"></span></span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="position: absolute; top: -3.807em; left: 0.539em;"><span class="mn" id="MathJax-Span-19" style="font-size: 70.7%; font-family: STIXGeneral-Regular;">1</span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span></span></span><span class="mo" id="MathJax-Span-20" style="font-family: STIXGeneral-Regular; padding-left: 0.301em;">=</span><span class="msubsup" id="MathJax-Span-21" style="padding-left: 0.301em;"><span style="display: inline-block; position: relative; width: 0.955em; height: 0px;"><span style="position: absolute; clip: rect(3.158em, 1000.54em, 4.348em, -999.997em); top: -3.985em; left: 0em;"><span class="mi" id="MathJax-Span-22" style="font-family: STIXGeneral-Italic;">β<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.003em;"></span></span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="position: absolute; top: -3.807em; left: 0.539em;"><span class="mn" id="MathJax-Span-23" style="font-size: 70.7%; font-family: STIXGeneral-Regular;">2</span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span></span></span><span class="mo" id="MathJax-Span-24" style="font-family: STIXGeneral-Regular; padding-left: 0.301em;">=</span><span class="mn" id="MathJax-Span-25" style="font-family: STIXGeneral-Regular; padding-left: 0.301em;">0</span></span></span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="position: absolute; clip: rect(3.158em, 1006.79em, 4.348em, -999.997em); top: -3.271em; left: 0em;"><span class="mtd" id="MathJax-Span-28"><span class="mrow" id="MathJax-Span-29"><span class="msubsup" id="MathJax-Span-30"><span style="display: inline-block; position: relative; width: 1.134em; height: 0px;"><span style="position: absolute; clip: rect(3.158em, 1000.78em, 4.17em, -999.997em); top: -3.985em; left: 0em;"><span class="mi" id="MathJax-Span-31" style="font-family: STIXGeneral-Italic;">H<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.063em;"></span></span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="position: absolute; top: -3.807em; left: 0.717em;"><span class="mi" id="MathJax-Span-32" style="font-size: 70.7%; font-family: STIXGeneral-Italic;">a</span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span></span></span><span class="mo" id="MathJax-Span-33" style="font-family: STIXGeneral-Regular; padding-left: 0.301em;">:</span><span class="msubsup" id="MathJax-Span-34" style="padding-left: 0.301em;"><span style="display: inline-block; position: relative; width: 0.955em; height: 0px;"><span style="position: absolute; clip: rect(3.158em, 1000.54em, 4.348em, -999.997em); top: -3.985em; left: 0em;"><span class="mi" id="MathJax-Span-35" style="font-family: STIXGeneral-Italic;">β<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.003em;"></span></span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="position: absolute; top: -3.807em; left: 0.539em;"><span class="mn" id="MathJax-Span-36" style="font-size: 70.7%; font-family: STIXGeneral-Regular;">1</span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span></span></span><span class="mo" id="MathJax-Span-37" style="font-family: STIXGeneral-Regular; padding-left: 0.241em;">∨</span><span class="msubsup" id="MathJax-Span-38" style="padding-left: 0.241em;"><span style="display: inline-block; position: relative; width: 0.955em; height: 0px;"><span style="position: absolute; clip: rect(3.158em, 1000.54em, 4.348em, -999.997em); top: -3.985em; left: 0em;"><span class="mi" id="MathJax-Span-39" style="font-family: STIXGeneral-Italic;">β<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.003em;"></span></span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span><span style="position: absolute; top: -3.807em; left: 0.539em;"><span class="mn" id="MathJax-Span-40" style="font-size: 70.7%; font-family: STIXGeneral-Regular;">2</span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span></span></span><span class="mo" id="MathJax-Span-41" style="font-family: STIXGeneral-Regular; padding-left: 0.301em;">≠</span><span class="mn" id="MathJax-Span-42" style="font-family: STIXGeneral-Regular; padding-left: 0.301em;">0</span></span></span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span></span><span style="display: inline-block; width: 0px; height: 3.991em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 2.205em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -1.211em; border-left: 0px solid; width: 0px; height: 2.932em;"></span></span></nobr><span class="MJX_Assistive_MathML MJX_Assistive_MathML_Block" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mtable columnalign="right left right left right left right left right left right left" rowspacing="3pt" columnspacing="0em 2em 0em 2em 0em 2em 0em 2em 0em 2em 0em" displaystyle="true"><mtr><mtd></mtd><mtd><msub><mi>H</mi><mi>o</mi></msub><mo>:</mo><msub><mi>β</mi><mn>1</mn></msub><mo>=</mo><msub><mi>β</mi><mn>2</mn></msub><mo>=</mo><mn>0</mn></mtd></mtr><mtr><mtd></mtd><mtd><msub><mi>H</mi><mi>a</mi></msub><mo>:</mo><msub><mi>β</mi><mn>1</mn></msub><mo>∨</mo><msub><mi>β</mi><mn>2</mn></msub><mo>≠</mo><mn>0</mn></mtd></mtr></mtable></math></span></span></div><script type="math/tex; mode=display" id="MathJax-Element-2">
+\begin{aligned}
+  &H_o: \beta_1 = \beta_2 = 0 \\
+  &H_a: \beta_1 \vee \beta_2 \neq 0
+\end{aligned}
+</script></span> Going back to the regression output, we see that it has a F-statistic of 1.403, which gives a p-value of .2654. With an <span class="math inline"><span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="MathJax" id="MathJax-Element-3-Frame" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mi&gt;&amp;#x03B1;&lt;/mi&gt;&lt;/math&gt;" role="presentation" style="position: relative;"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-43" style="width: 0.658em; display: inline-block;"><span style="display: inline-block; position: relative; width: 0.539em; height: 0px; font-size: 120%;"><span style="position: absolute; clip: rect(1.908em, 1000.54em, 2.682em, -999.997em); top: -2.497em; left: 0em;"><span class="mrow" id="MathJax-Span-44"><span class="mi" id="MathJax-Span-45" style="font-family: STIXGeneral-Italic;">α</span></span><span style="display: inline-block; width: 0px; height: 2.503em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.068em; border-left: 0px solid; width: 0px; height: 0.718em;"></span></span></nobr><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>α</mi></math></span></span><script type="math/tex" id="MathJax-Element-3">\alpha</script></span> of .05, we would fail to reject the null hypothesis. From our F-test we can conclude that this linear model does not have any significant predictive ability predicting the change in exports for a country for next year. In order to improve the linear model, we could have fitted 139 dummy variables to account for variation from each country. However, lets see if we can build a better model without fitting 100+ variables.</p>
+</div>
+<div id="random-forest-application" class="section level2">
+<h2>Random Forest Application</h2>
+<p>Our approach is going to be using a Random Forest machine learning algorithm to predict whether or not the amount of goods exported is goign to go up or down in the next year. The algorithm works by constructing multiple decision trees and then using the mean prediction of the indiivudal trees. In this first step, we will just be setting up the data. For the analysis I chose to only use data up to 2010 and then try to predict the amount of exports in 2011 because the data after that point is very volatile.</p>
+<pre class="r"><code class="hljs"><span class="hljs-comment">## Original dataset </span>
+trade_nom_change &lt;- (trade_matrix_1 - trade_matrix_2) %&gt;%
+  magrittr::set_colnames(<span class="hljs-literal">NULL</span>) %&gt;%
+  as_data_frame() 
+trade_nom_change &lt;- trade_nom_change %&gt;%
+  mutate(category_code = trade_wide_df$category_code)
+
+<span class="hljs-comment">## Add Direction attribute that describes whether or not the exports for that item went up or down in 2011</span>
+outcome_df &lt;- trade_wide_df %&gt;%
+  mutate(diff = `2012` - `2011`) %&gt;%
+  mutate(Direction = ifelse(diff&gt;<span class="hljs-number">0</span>, <span class="hljs-string">"up"</span>, <span class="hljs-string">"down"</span>)) %&gt;%
+  select(category_code, Direction)
+outcome_df</code></pre>
+<pre><code class="hljs">## # A tibble: 98 x 2
+##    category_code Direction
+##    &lt;chr&gt;         &lt;chr&gt;    
+##  1 ""            down     
+##  2 01            up       
+##  3 02            down     
+##  4 03            up       
+##  5 04            down     
+##  6 05            up       
+##  7 06            down     
+##  8 07            down     
+##  9 08            up       
+## 10 09            up       
+## # ... with 88 more rows</code></pre>
+<pre class="r"><code class="hljs"><span class="hljs-comment">## Combine the two dataframes </span>
+final_df &lt;- trade_nom_change %&gt;%
+  inner_join(outcome_df, by=<span class="hljs-string">"category_code"</span>) %&gt;%
+  mutate(Direction=factor(Direction, levels=c(<span class="hljs-string">"down"</span>, <span class="hljs-string">"up"</span>))) %&gt;%
+  select(-V28,-V27,-V26,-V25,-V24) %&gt;%
+  filter(!(category_code %<span class="hljs-keyword">in</span>% c(<span class="hljs-string">''</span>,<span class="hljs-string">'99'</span>)))
+final_df</code></pre>
+<pre><code class="hljs">## # A tibble: 96 x 25
+##       V1       V2    V3     V4      V5    V6    V7    V8    V9      V10
+##    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;
+##  1  1171   659     1008 2195      48.8  2739  1596 - 385 - 606 - 351   
+##  2  4079  1294      647 3113   - 179    5669  4246   333   474 -1581   
+##  3  3273  1006      738 1555    1065    1488  1107 - 361   732 - 430   
+##  4  1914   349      756 7471   - 288    5341  6676 -2022   387 -   6.19
+##  5   501     2.64   346  768      54.9   655   550   218   240 - 185   
+##  6   649   170      627 2519    1382    1379 - 891   149  1826   202   
+##  7   467   293    - 261 1101     464    2057  1740 - 136 - 134   553   
+##  8   449   917      855  992     216    2566  1758   853  1297 - 110   
+##  9  2779 - 555     1529   46.2   309    2229  3802 -1355 - 992  1889   
+## 10  7433 -3204     1936 4188    2174    7247   135 - 882 - 495  4303   
+## # ... with 86 more rows, and 15 more variables: V11 &lt;dbl&gt;, V12 &lt;dbl&gt;,
+## #   V13 &lt;dbl&gt;, V14 &lt;dbl&gt;, V15 &lt;dbl&gt;, V16 &lt;dbl&gt;, V17 &lt;dbl&gt;, V18 &lt;dbl&gt;,
+## #   V19 &lt;dbl&gt;, V20 &lt;dbl&gt;, V21 &lt;dbl&gt;, V22 &lt;dbl&gt;, V23 &lt;dbl&gt;,
+## #   category_code &lt;chr&gt;, Direction &lt;fct&gt;</code></pre>
+<p>Once the data is in the right format, we have to divide the data up into two groups. 1 group will be for training (80% of the samples), and the other group will be for testing (20% of the samples). It is important to divide your dataset into testing and training data in order to avoid overfitting.</p>
+<pre class="r"><code class="hljs">set.seed(<span class="hljs-number">1234</span>)
+test_random_forest_df &lt;- final_df %&gt;%
+  group_by(Direction) %&gt;%
+  sample_frac(<span class="hljs-number">.2</span>) %&gt;%
+  ungroup()
+
+train_random_forest_df &lt;- final_df %&gt;%
+  anti_join(test_random_forest_df, by=<span class="hljs-string">"category_code"</span>)</code></pre>
+<p>At this step, we can finally plug our training data into the random forest algorithm and prduce an end model!</p>
+<pre class="r"><code class="hljs">rf &lt;- randomForest(Direction~., data=train_random_forest_df %&gt;% 
+                     select(-category_code),na.action = na.exclude)
+rf</code></pre>
+<pre><code class="hljs">## 
+## Call:
+##  randomForest(formula = Direction ~ ., data = train_random_forest_df %&gt;%      select(-category_code), na.action = na.exclude) 
+##                Type of random forest: classification
+##                      Number of trees: 500
+## No. of variables tried at each split: 4
+## 
+##         OOB estimate of  error rate: 42.11%
+## Confusion matrix:
+##      down up class.error
+## down   34 11   0.2444444
+## up     21 10   0.6774194</code></pre>
+<p>From the model printout, we can see that it still had an error rate of close to 45%. When we run our model with the test data below, we also see a similar result. Even though we were not able to build a model with a very low error rate, I believe that there are a lot of small tweeks that could be made to the model for improvements. If this is something that is of interest, I would recommend reading more about the <a href="https://machinelearningmastery.com/tune-machine-learning-algorithms-in-r/">caret package</a>.</p>
+<pre class="r"><code class="hljs">test_predictions &lt;- predict(rf, newdata=test_random_forest_df %&gt;% select(-category_code))
+table(pred=test_predictions, observed=test_random_forest_df$Direction)</code></pre>
+<pre><code class="hljs">##       observed
+## pred   down up
+##   down    8  4
+##   up      3  4</code></pre>
+</div>
+<div id="conclusion" class="section level2">
+<h2>Conclusion</h2>
+<p>At the beginning of this tutorial, we began with a foreign dataset that had more than 8 million rows. Taking baby steps at the beginning, we first built a scatter plot that described the state of global trade over time. Looking at the plot we noticed an abnormally large dip in exports after 2014, so we did further analysis to figure out why that may have been. As we progressed through the tutorial and the analysis became more convoluted, we performed intermitten sanity checks by comparing our findings with news articles and market reports.</p>
+<p>In the second half of the tutorial, we began to move away from descriptive to predictive analysis. We first began with a simple linear regression, but then after conducting a F-test we concluded that the model was not statistically significant. In a last attempt to build a working model, we built a random forest model to predict whether or not exports were going to rise in 2012. Thank you for working along with me through this tutorial, and if there are any lingering questions, <a href="http://www.hcbravo.org/IntroDataSci/bookdown-notes/">this is a great resource on using R for datascience</a>.</p>
+<div id="research-questions-for-future-analysis" class="section level3">
+<h3>Research questions for future analysis</h3>
+<ul>
+<li>Countries that export and import the same product, look at re-imports and re-exports</li>
+<li>What is the most traded commodity?</li>
+<li>Which countries are the most dependent on one export/import item?</li>
+<li>What caused spike in re-exports</li>
+<li>Countries that have exports &gt; imports vs.&nbsp;countries with imports &gt; exports, over time</li>
+<li>Use cluster analysis on amount of exports to see if there are any groupings. Graph each</li>
+<li>Price/pound for live animals over time. Weight/animal over time</li>
+<li>Most valuable trade item?, compare countries</li>
+</ul>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+
+
+<div style="position: absolute; width: 0px; height: 0px; overflow: hidden; padding: 0px; border: 0px; margin: 0px;"><div id="MathJax_Font_Test" style="position: absolute; visibility: hidden; top: 0px; left: 0px; width: auto; padding: 0px; border: 0px; margin: 0px; white-space: nowrap; text-align: left; text-indent: 0px; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; font-size: 40px; font-weight: normal; font-style: normal; font-family: STIXSizeOneSym, sans-serif;"></div></div></body></html>
